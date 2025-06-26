@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IMDb Movie Info Scraper</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+    <h1>🎬 IMDb Movie Info Scraper</h1>
+    <input type="text" id="movieInput" placeholder="Enter movie name">
+    <button onclick="getMovieInfo()">Search</button>
+    
+    <div class="result" id="resultBox"></div>
+</div>
+
+<script>
+    async function getMovieInfo() {
+        const movieName = document.getElementById('movieInput').value;
+        const apiKey = 'YOUR_OMDB_API_KEY'; // Get it from http://www.omdbapi.com/apikey.aspx
+
+        const response = await fetch(`https://www.omdbapi.com/?t=${movieName}&apikey=${apiKey}`);
+        const data = await response.json();
+
+        const resultBox = document.getElementById('resultBox');
+        if (data.Response === "True") {
+            const content = `
+                <h2>${data.Title}</h2>
+                <p><strong>Rating:</strong> ${data.imdbRating}</p>
+                <p><strong>Summary:</strong> ${data.Plot}</p>
+            `;
+            resultBox.innerHTML = content;
+
+            // Save to file (only works for download on client side)
+            const blob = new Blob([`Title: ${data.Title}\nRating: ${data.imdbRating}\nPlot: ${data.Plot}`], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${data.Title}_info.txt`;
+            link.click();
+        } else {
+            resultBox.innerHTML = `<p class="error">Movie not found. Try another title.</p>`;
+        }
+    }
+</script>
+</body>
+</html>
